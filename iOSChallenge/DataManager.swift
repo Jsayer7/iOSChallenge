@@ -73,18 +73,20 @@ class DataManager: NSObject {
         closure(images)
     }
     
-    func downloadImage(urlString:String) -> UIImage {
+    func downloadImage(urlString:String, closure: (UIImage) -> Void ) {
 
-        var returnedImage = UIImage()
 
-        DispatchQueue.global().async {
+        guard let unwrappedURL = URL(string: urlString) else { return }
 
-            do {
-                try returnedImage = UIImage(data: Data(contentsOf: URL(string: urlString)!))!
-            } catch {
-                print("Error downloading image from: \(urlString)")
-            }
+        var image:UIImage = UIImage()
+
+        do {
+
+            try image = UIImage(data: Data(contentsOf: unwrappedURL))!
+
+        } catch {
+            print("Error downloading image from: \(urlString)")
         }
-        return returnedImage
+        closure(image)
     }
 }

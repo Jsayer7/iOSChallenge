@@ -127,11 +127,23 @@ class AlbumPhotosViewController: UICollectionViewController {
         
 
         // Configure the cell
-        cell.backgroundColor = UIColor.green
+        cell.backgroundColor = UIColor.lightGray
         cell.contentView.addSubview(activityIndicator)
         cell.contentView.addSubview(imageView)
 
         return cell
+    }
+
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+
+        let selectedPhoto = self.allPhotos[indexPath.row]
+
+        let detailController = DetailViewController()
+        detailController.title = selectedPhoto.title
+        detailController.incomingPhotoURL = selectedPhoto.url
+        
+        self.navigationController?.pushViewController(detailController, animated: true)
+
     }
 
     // MARK: UICollectionViewDelegate
