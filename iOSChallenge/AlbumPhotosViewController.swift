@@ -37,13 +37,38 @@ class AlbumPhotosViewController: UICollectionViewController {
             }
         }
 
-        for imageURL in self.photoThumbnailURLs {
-            let data = try! Data(contentsOf: URL(string: imageURL)!)
-            let image = UIImage(data: data)
-            print("Fetching image from: \(imageURL)")
+        DispatchQueue.global(qos: .background).async { [weak self] () -> Void in
+            
+            if let strongSelf = self {
+               
+                strongSelf.dataManager.downloadImages(urls: strongSelf.photoThumbnailURLs) { (images: [UIImage])  in
+                    
+                    NSLog("\(images.count)")
+                    strongSelf.thumbnailImages = images
+                    NSLog("\(strongSelf.thumbnailImages.count)")
 
-            self.thumbnailImages.append(image!)
+                    
+                    DispatchQueue.main.async {
+                        strongSelf.collectionView!.reloadData()
+                    }
+                }
+            }
+            
         }
+        
+//        DispatchQueue.global(qos: .userInitiated).async {
+//
+//            for imageURL in self.photoThumbnailURLs {
+//                let image = self.dataManager.downloadImage(urlString: imageURL)
+//
+//                self.thumbnailImages.append(image)
+//                print("Appending image from \(imageURL) to image array")
+//
+//                DispatchQueue.main.async {
+//                    self.collectionView!.reloadData()
+//                }
+//            }
+//        }
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -87,13 +112,25 @@ class AlbumPhotosViewController: UICollectionViewController {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
 
         let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
-        imageView.image = self.thumbnailImages[indexPath.row]
 
+        let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .white)
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.center = cell.contentView.center
+        activityIndicator.startAnimating()
 
-    
+        
+        
+        if indexPath.row <= self.thumbnailImages.count - 1 {
+            imageView.image = self.thumbnailImages[indexPath.row]
+            activityIndicator.stopAnimating()
+        }
+        
+
         // Configure the cell
         cell.backgroundColor = UIColor.green
+        cell.contentView.addSubview(activityIndicator)
         cell.contentView.addSubview(imageView)
+
         return cell
     }
 

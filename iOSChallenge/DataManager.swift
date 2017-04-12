@@ -53,14 +53,37 @@ class DataManager: NSObject {
         return rawJson
     }
 
+    func downloadImages(urls: [String], closure: ([UIImage]) -> Void) {
+    
+        var images = [UIImage]()
+        
+        for imageURL in urls {
+            
+            var image = UIImage()
+
+            do {
+                try image = UIImage(data: Data(contentsOf: URL(string: imageURL)!))!
+            } catch {
+                print("Error downloading image from: \(imageURL)")
+            }
+            
+            images.append(image)
+        }
+        
+        closure(images)
+    }
+    
     func downloadImage(urlString:String) -> UIImage {
 
         var returnedImage = UIImage()
 
-        let url = URL(string: urlString)
+        DispatchQueue.global().async {
 
-        if let data = try! Data(contentsOf: url!) as? Data {
-            returnedImage = UIImage(data: data)!
+            do {
+                try returnedImage = UIImage(data: Data(contentsOf: URL(string: urlString)!))!
+            } catch {
+                print("Error downloading image from: \(urlString)")
+            }
         }
         return returnedImage
     }
